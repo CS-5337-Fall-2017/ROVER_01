@@ -115,7 +115,20 @@ public class ROVER_01 extends Rover {
 			 */
 			int stepCount = 0;	
 			String line = "";	
-			boolean goingSouth = false;
+			int moveNS=0;
+			Coord npLoc=null;
+			Coord spLoc=null;
+			Coord wpLoc=null;
+			Coord epLoc=null;
+			
+		/*	boolean goingSouth = false;
+			boolean sVisited = false;
+			boolean nVisited=false;
+			boolean isStepCount = false;*/
+			boolean isNorth=false;
+			boolean isEast=true;
+		
+			/*boolean wVisited = false;*/
 			boolean stuck = false; // just means it did not change locations between requests,
 									// could be velocity limit or obstruction etc.
 			boolean blocked = false;
@@ -200,7 +213,385 @@ public class ROVER_01 extends Rover {
 				
 				// ***** MOVING *****
 				// try moving east 5 block if blocked
-				if (blocked) {
+				
+				MapTile[][] scanMapTiles = scanMap.getScanMap();
+				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
+				System.out.println("arun:"+centerIndex);
+				
+				if  ((scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE) && (scanMapTiles[centerIndex][centerIndex+1 ].getHasRover() 
+								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE)) 
+					{	
+					if(!(scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+							|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE) )
+					{
+						if(isEast)
+						moveEast();
+						else if(!(scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.NONE))
+						{
+							moveWest();
+						}	
+					}
+					else {
+						moveWest();
+					}
+					
+					}
+				else if  ((scanMapTiles[centerIndex-1][centerIndex ].getHasRover() 
+						|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.NONE) && (scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+								|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE)) 
+					{	
+					if(!(scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.NONE) )
+					{
+						if(!isNorth)
+						moveSouth();
+						else if(!(scanMapTiles[centerIndex][centerIndex-1].getHasRover() 
+								|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.NONE))
+						{
+							moveNorth();
+						}	
+					}
+					else {
+						moveNorth();
+					}
+					
+					}
+				
+				
+				
+				
+				
+				else if  ((scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE) && (scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+								|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.NONE)) 
+					{	
+					if(!(scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+							|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE))
+					{
+					moveEast();
+					isEast=true;
+					}
+					else
+					{
+					moveSouth();
+					isNorth=false;
+					}
+					
+					}
+				else if(scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE)
+				{
+					if(!(scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+							|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE))
+					{
+					moveEast();
+					}
+					else if(!(scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE))
+					{
+					moveSouth();	
+					isNorth=false;
+					}
+					else
+					{
+					moveWest();
+					isEast=false;
+					}
+				}
+				
+				else if(scanMapTiles[centerIndex+1][centerIndex ].getHasRover() 
+						|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE)
+				{
+					if(!(scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.NONE))
+					{
+					moveSouth();	
+					isNorth=false;
+					}
+					else if(!(scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+							|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.NONE))
+					{
+						moveWest();
+						isEast=false;
+					}
+					else
+					{
+						moveNorth();
+						isNorth=true;
+					}
+						
+				}
+				
+				else if(scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE)
+				{
+					if(!(scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+							|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.NONE))
+					{
+						moveWest();
+						isEast=false;
+					}
+					else if(!(scanMapTiles[centerIndex][centerIndex-1].getHasRover() 
+							|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE))
+					{
+						moveNorth();
+						isNorth=true;
+					}
+					else
+					{
+						moveEast();
+						isEast=true;
+					}
+				}
+				
+				else if(scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+						|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex-1][centerIndex ].getTerrain() == Terrain.NONE)
+				{
+					if(!(scanMapTiles[centerIndex][centerIndex-1].getHasRover() 
+							|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE))
+					{
+						moveNorth();
+						isNorth=true;
+					}
+					else if (!(scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+							|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE))
+					{
+					moveEast();
+					isEast=true;
+					}
+					else
+					{
+						moveSouth();
+						isNorth=false;
+					}
+				}
+				
+				else if  ((scanMapTiles[centerIndex-1][centerIndex -1].getHasRover() 
+						|| scanMapTiles[centerIndex-1][centerIndex -1].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex-1][centerIndex -1].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex-1][centerIndex -1].getTerrain() == Terrain.NONE) ) 
+					{
+						if(npLoc!=null && npLoc.equals(getCurrentLocation()))
+							{npLoc=null;
+							moveSouth();
+							
+							}
+						npLoc = getCurrentLocation();
+						moveNorth();
+					
+					}
+					else if  ((scanMapTiles[centerIndex+1][centerIndex +1].getHasRover() 
+							|| scanMapTiles[centerIndex+1][centerIndex +1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex+1][centerIndex +1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex+1][centerIndex +1].getTerrain() == Terrain.NONE) ) 
+						{	
+						if(spLoc!=null && spLoc.equals(getCurrentLocation()))
+								{ spLoc=null;
+								moveNorth();
+								}
+						spLoc = getCurrentLocation();
+						moveSouth();
+						}
+					else if  ((scanMapTiles[centerIndex-1][centerIndex +1].getHasRover() 
+							|| scanMapTiles[centerIndex-1][centerIndex +1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex-1][centerIndex +1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex-1][centerIndex +1].getTerrain() == Terrain.NONE) ) 
+						{	
+						if(wpLoc!=null && wpLoc.equals(getCurrentLocation()))
+								{wpLoc=null;
+							moveEast();}
+							
+						wpLoc = getCurrentLocation();
+						moveWest();
+						}
+					else if  ((scanMapTiles[centerIndex+1][centerIndex -1].getHasRover() 
+							|| scanMapTiles[centerIndex+1][centerIndex -1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex+1][centerIndex -1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex+1][centerIndex -1].getTerrain() == Terrain.NONE) ) 
+						{	
+						
+						if(epLoc!=null && epLoc.equals(getCurrentLocation()))
+							{
+							epLoc=null;
+							moveWest();
+							}
+						epLoc = getCurrentLocation();
+						//isEast=true;
+						moveEast();
+						
+						}
+					else if(isNorth)
+					{
+					moveNorth();
+					}
+					else 
+					{	moveSouth();
+					}
+				/*if( isStepCount)
+				{
+					
+					
+				if (!(scanMapTiles[centerIndex+1][centerIndex].getHasRover() 
+						|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex+1][centerIndex].getTerrain() == Terrain.NONE))
+				{
+					if (!(scanMapTiles[centerIndex ][centerIndex+1].getHasRover() 
+							|| scanMapTiles[centerIndex ][centerIndex+1].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex ][centerIndex+1].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.NONE))
+					{	
+						
+					
+						moveSouth();
+						
+					}
+				}	
+					
+					else
+					{	
+						isStepCount=false;
+						a=1;
+						b=-1;
+					}*/
+				/*	else
+					{
+						if(!(scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
+								|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE)) 
+							{	
+							b=-1;
+							a=1;
+							moveNorth();
+							}
+						isStepCount=false;
+					}*/
+				//}
+				
+				/*if  ( sVisited || scanMapTiles[centerIndex][centerIndex +b].getHasRover() 
+						|| scanMapTiles[centerIndex][centerIndex +b].getTerrain() == Terrain.ROCK
+						|| scanMapTiles[centerIndex][centerIndex +b].getTerrain() == Terrain.SAND
+						|| scanMapTiles[centerIndex][centerIndex +b].getTerrain() == Terrain.NONE) 
+					{	
+					if ( wVisited ||scanMapTiles[centerIndex +1][centerIndex ].getHasRover() 
+							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.ROCK
+							|| scanMapTiles[centerIndex +1][centerIndex ].getTerrain() == Terrain.SAND
+							|| scanMapTiles[centerIndex +1][centerIndex].getTerrain() == Terrain.NONE) 
+						{
+						if (nVisited || scanMapTiles[centerIndex][centerIndex +a].getHasRover() 
+									|| scanMapTiles[centerIndex][centerIndex +a].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex][centerIndex +a].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex][centerIndex +a].getTerrain() == Terrain.NONE) 
+								{
+								if (scanMapTiles[centerIndex -1][centerIndex ].getHasRover() 
+										|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.ROCK
+										|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.SAND
+										|| scanMapTiles[centerIndex -1][centerIndex].getTerrain() == Terrain.NONE) 
+								{
+									sVisited=false;
+									wVisited=false;
+									a=1;
+									b=-1;
+									//isStepCount=true;
+									nVisited=false;
+								
+								}
+								else
+								{	sVisited=true;
+									wVisited=true;
+									//pisStepCount=true;
+									nVisited=true;
+									moveWest();
+								}
+								
+							}
+							else
+							{	
+								
+								
+								wVisited=true;
+								sVisited=true;
+								if(a==1 && b==-1)
+									moveSouth();
+								moveNorth();
+							}
+					}
+					else
+					{	sVisited=false;
+						nVisited=false;
+						
+						moveEast();
+						
+					}
+					
+				}
+				else
+				{	
+					
+					
+						wVisited=false;
+						nVisited=true;
+						if(a==1 && b==-1)
+							moveNorth();
+						moveSouth();
+						
+							
+					
+				}
+				*/
+				
+				
+				
+				/*if (blocked) {
 					if(stepCount > 0){
 						moveEast();
 						stepCount -= 1;
@@ -249,7 +640,7 @@ public class ROVER_01 extends Rover {
 						}					
 					}
 				}
-	
+*/	
 				// another call for current location
 				currentLoc = getCurrentLocation();
 
