@@ -121,14 +121,19 @@ public class ROVER_01 extends Rover {
 			Coord wpLoc=null;
 			Coord epLoc=null;
 			
+			boolean northBlocked=false;
+			boolean southBlocked=false;
+			boolean goingEast = false;
+			boolean switching=false;
+			
 		/*	boolean goingSouth = false;
 			boolean sVisited = false;
 			boolean nVisited=false;
-			boolean isStepCount = false;*/
+			boolean isStepCount = false;
 			boolean isNorth=false;
 			boolean isEast=true;
-		
-			/*boolean wVisited = false;*/
+			boolean wVisited = false;*/
+			
 			boolean stuck = false; // just means it did not change locations between requests,
 									// could be velocity limit or obstruction etc.
 			boolean blocked = false;
@@ -216,7 +221,138 @@ public class ROVER_01 extends Rover {
 				
 				MapTile[][] scanMapTiles = scanMap.getScanMap();
 				int centerIndex = (scanMap.getEdgeSize() - 1)/2;
-				System.out.println("arun:"+centerIndex);
+				if(southBlocked && northBlocked)
+				{	blocked = false;
+					goingEast = !goingEast;
+					switching=true;
+				}
+				
+				if (blocked)
+				{
+					if(stepCount > 0)
+					{
+						stepCount -= 1;
+						
+						if(switching)
+						{
+							if(!(scanMapTiles[centerIndex][centerIndex-1].getHasRover() 
+									|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex][centerIndex-1].getTerrain() == Terrain.NONE)) 
+								{
+									moveNorth();
+								}
+							else
+							{
+							
+								switching=false;
+							}
+						}
+						if(!(scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+								|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex][centerIndex+1].getTerrain() == Terrain.NONE)) 
+							{
+								moveSouth();
+							}
+						else
+						{
+							
+							switching=true;
+						}
+						}
+					
+			
+					else {
+						blocked = false;
+						//reverses direction after being blocked and side stepping
+						goingEast = !goingEast;
+					}
+					
+				} 
+				else {
+					if (goingEast) {
+						// check scanMap to see if path is blocked to the south
+						// (scanMap may be old data by now)
+						if (scanMapTiles[centerIndex-1][centerIndex].getHasRover() 
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex-1][centerIndex].getTerrain() == Terrain.NONE) 
+						{
+							blocked = true;
+							stepCount = 6; 
+							if (scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+									|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE)
+							{
+								southBlocked=true;
+							}
+							else
+							{
+								southBlocked=false;
+							}
+							if(scanMapTiles[centerIndex][centerIndex-1].getHasRover() 
+									|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE)
+							{
+								northBlocked=true;
+							}
+							else
+							{
+								northBlocked=false;
+							}
+						} 
+						else 
+						{
+						moveWest();
+						}
+						
+					} 
+					else
+					{
+						// check scanMap to see if path is blocked to the north
+						// (scanMap may be old data by now)
+						if (scanMapTiles[centerIndex+1][centerIndex ].getHasRover() 
+								|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.ROCK
+								|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.SAND
+								|| scanMapTiles[centerIndex+1][centerIndex ].getTerrain() == Terrain.NONE)
+						{
+							blocked = true;
+							stepCount = 6;  
+							
+							if (scanMapTiles[centerIndex][centerIndex+1].getHasRover() 
+									|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex][centerIndex +1].getTerrain() == Terrain.NONE)
+							{
+								southBlocked=true;
+							}
+							else
+							{
+								southBlocked=false;
+							}
+							if(scanMapTiles[centerIndex][centerIndex-1].getHasRover() 
+									|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
+									|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.SAND
+									|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.NONE)
+							{
+								northBlocked=true;
+							}
+							else
+							{
+								northBlocked=false;
+							}
+						} 
+						else 
+						{
+							moveEast();			
+						}					
+					}
+				}
+				
+				/*System.out.println("arun:"+centerIndex);
 				
 				if  ((scanMapTiles[centerIndex][centerIndex -1].getHasRover() 
 						|| scanMapTiles[centerIndex][centerIndex -1].getTerrain() == Terrain.ROCK
@@ -474,7 +610,7 @@ public class ROVER_01 extends Rover {
 					}
 					else 
 					{	moveSouth();
-					}
+					}*/
 				/*if( isStepCount)
 				{
 					
