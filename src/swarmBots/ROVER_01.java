@@ -185,7 +185,8 @@ public class ROVER_01 extends Rover {
 			 * corp_secret);
 			 */
 			Astar aStar = new Astar();
-
+			int xsc=-1;
+			int ysc=-1;
 			RoverMode roverMode = RoverMode.EXPLORE;
 
 			/**
@@ -232,42 +233,31 @@ public class ROVER_01 extends Rover {
 				MapTile[][] scanMapTiles = scanMap.getScanMap();
 				int centerIndex = (scanMap.getEdgeSize() - 1) / 2;
 				
-				ScienceDetail scienceDetail = analyzeAndGetSuitableScience();
-				
-				
-				if (scienceDetail != null) 
+				if(scanMapTiles[centerIndex][centerIndex].getScience()==Science.ORGANIC)
 				{
-					roverMode = RoverMode.GATHER;
-					sendRoverDetail(roverMode);	
-					System.out.println("FOUND SCIENCE TO GATHER: " + scienceDetail);
-				} 
-				else 
-				{
-					roverMode = RoverMode.EXPLORE;
-					sendRoverDetail(roverMode);
+				gatherScience(getCurrentLocation());
 				}
+				
+				for(int i=0;i<scanMapTiles.length;i++)
+				{
+					for (int j = 0; j < scanMapTiles.length; j++) 
+					{
+						if(scanMapTiles[i][j].getScience()==Science.ORGANIC	&&  scanMapTiles[i][j].getTerrain() != Terrain.ROCK
+								&& scanMapTiles[i][j].getTerrain() != Terrain.SAND
+								&& scanMapTiles[i][j].getTerrain() != Terrain.NONE)
+						{
+							xsc=i;
+							ysc=j;
+							break;
+						}
+					}
+				}
+				
+				
 
 				
-				
-					if (roverMode == RoverMode.GATHER 
-							&& !(scienceDetail.getTerrain() == Terrain.ROCK) && !(scienceDetail.getTerrain() == Terrain.SAND)
-							&& !(scienceDetail.getTerrain() == Terrain.NONE)) 
-					{
-						
-						System.out.println("FOUND SCIENCE TO GATHER: " + scienceDetail);
-						if(scanMapTiles[centerIndex][centerIndex].getScience()== Science.ORGANIC ||( scienceDetail.getX() == getCurrentLocation().xpos
-							&& scienceDetail.getY() == getCurrentLocation().ypos )) 
-						{
-						gatherScience(getCurrentLocation());
-						//communication.postScanMapTiles(currentLoc, scanMap.getScanMap());
-						System.out.println("$$$$$> Gathered science " + scienceDetail.getScience() + " at location "
-								+ getCurrentLocation());
-						}
-					
-						// RoverConfiguration curRoverConfig =
-						// RoverConfiguration.valueOf(rovername);
-					else
-					{
+				if(xsc!=-1)	
+				{
 						
 						RoverConfiguration roverConfiguration = RoverConfiguration.valueOf(rovername);
 						RoverDriveType driveType = RoverDriveType.valueOf(roverConfiguration.getMembers().get(0));
@@ -275,8 +265,9 @@ public class ROVER_01 extends Rover {
 						RoverToolType tool2 = RoverToolType.getEnum(roverConfiguration.getMembers().get(2));
 						
 						aStar.addScanMap(doScan(), getCurrentLocation(), tool1, tool2);
-							dirChar = aStar.findPath(getCurrentLocation(),
-								new Coord(scienceDetail.getX(), scienceDetail.getY()), driveType);
+						dirChar =aStar.findPath(getCurrentLocation(), new Coord(getCurrentLocation().xpos-3+xsc,getCurrentLocation().ypos-3 +ysc),
+								driveType );
+
 						
 						
 						System.out.println("from astar dirChar is: " + dirChar);
@@ -304,10 +295,12 @@ public class ROVER_01 extends Rover {
 						if (dirChar == 'U'  ) 
 						{
 							System.out.println("moving North, because I'm directed to go: " + dirChar);
-							roverMode = RoverMode.EXPLORE; 
+							roverDetail.setRoverMode( RoverMode.EXPLORE );
+							xsc=-1;
+						
 						}
 					}
-					}
+					
 					else
 					{
 							
@@ -362,7 +355,7 @@ public class ROVER_01 extends Rover {
 									|| scanMapTiles[centerIndex - 1][centerIndex].getTerrain() == Terrain.SAND
 									|| scanMapTiles[centerIndex - 1][centerIndex].getTerrain() == Terrain.NONE) {
 								blocked = true;
-								stepCount = 6;
+								stepCount = 7;
 								if (scanMapTiles[centerIndex][centerIndex + 1].getHasRover()
 										|| scanMapTiles[centerIndex][centerIndex + 1].getTerrain() == Terrain.ROCK
 										|| scanMapTiles[centerIndex][centerIndex + 1].getTerrain() == Terrain.SAND
@@ -371,11 +364,14 @@ public class ROVER_01 extends Rover {
 								} else {
 									southBlocked = false;
 								}
-								
-								
-								
-								
-								
+								if (scanMapTiles[centerIndex][centerIndex - 1].getHasRover()
+										|| scanMapTiles[centerIndex][centerIndex - 1].getTerrain() == Terrain.ROCK
+										|| scanMapTiles[centerIndex][centerIndex - 1].getTerrain() == Terrain.SAND
+										|| scanMapTiles[centerIndex][centerIndex - 1].getTerrain() == Terrain.NONE) {
+									northBlocked = true;
+								} else {
+									northBlocked = false;
+								}
 							} else {
 								moveWest();
 							}
@@ -389,7 +385,7 @@ public class ROVER_01 extends Rover {
 									|| scanMapTiles[centerIndex + 1][centerIndex].getTerrain() == Terrain.SAND
 									|| scanMapTiles[centerIndex + 1][centerIndex].getTerrain() == Terrain.NONE) {
 								blocked = true;
-								stepCount = 6;
+								stepCount = 7;
 
 								if (scanMapTiles[centerIndex][centerIndex + 1].getHasRover()
 										|| scanMapTiles[centerIndex][centerIndex + 1].getTerrain() == Terrain.ROCK
